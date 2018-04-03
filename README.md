@@ -1,5 +1,7 @@
 # Baltic International Fish Survey Working Group
 
+http://www.ices.dk/community/groups/Pages/WGBIFS.aspx
+
 The primary objective of the Baltic International Fish Survey Working Group (WGBIFS) is the planning, coordination, and implementation of demersal trawl surveys and hydroacoustic surveys in the Baltic Sea.
 
 ICES Baltic International Fish Survey Working Group (WGBIFS) was established in 1996 from the Study Group on Data Preparation for the Assessments of Demersal and Pelagic Stocks in the Baltic and comprises experts representing nine countries from around the Baltic Sea.
