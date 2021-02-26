@@ -51,12 +51,13 @@ ices_areas_rectangles_contour <- st_intersection(ices_areas_rectangles, gebco_ba
 
 ggplot() + geom_sf(data = ices_areas_rectangles_contour) + coord_sf()
 
+ices_areas_rectangles_contour$Area__Rectangle <- paste0(ices_areas_rectangles_contour$Area_Full,".", ices_areas_rectangles_contour$ICESNAME)
 ices_areas_rectangles_contour$Area__M2 <- as.numeric(st_area(ices_areas_rectangles_contour))
 ices_areas_rectangles_contour$Area__KM2 <- as.numeric(st_area(ices_areas_rectangles_contour) * 1 / (1000 * 1000))
 ices_areas_rectangles_contour$Area__NM2 <- as.numeric(st_area(ices_areas_rectangles_contour) * 1 / (1852 * 1852))
 
 # Write
-st_write(ices_areas_rectangles_contour[c("SubDivision", "ICESNAME", "Area__NM2")], "Data/WGBIFS_mapped_areas_R.csv")
+st_write(ices_areas_rectangles_contour[c("Area__Rectangle", "Area__NM2")], "Data/WGBIFS_mapped_areas_R.csv")
 
 # Misc
 # st_write(wgbifs_mapped_areas[c("SubDivision", "Rectangle", "Area_NM")], "Data/b.csv")
@@ -78,15 +79,16 @@ st_write(ices_areas_rectangles_contour[c("SubDivision", "ICESNAME", "Area__NM2")
 # ggplot() + geom_sf(data = ices_areas_rectangles_contour) + coord_sf()
 # 
 # # 38G0
-# rectangle <- st_as_sfc("POLYGON((10 54.5, 11 54.5, 11 55, 10 55, 10 54.5))")
-# st_crs(rectangle) = 4326
-# #st_transform(rectangle, crs = 3035)
-# st_area(rectangle) * 1 / (1000 * 1000) # km2
-# st_area(rectangle) * 1 / (1852 * 1852) # nmi2
+ rectangle <- st_as_sfc("POLYGON((10 54.5, 11 54.5, 11 55, 10 55, 10 54.5))")
+ st_crs(rectangle) = 4326
+ st_transform(rectangle, crs = 3035)
+ as.numeric(st_area(rectangle) * 1 / (1000 * 1000)) # km2
+ as.numeric(st_area(rectangle) * 1 / (1852 * 1852)) # nmi2
 # 
 # #52G9
-# rectangle <- st_as_sfc("POLYGON((19 61.5, 20 61.5, 20 62, 19 62, 19 61.5))")
-# st_crs(rectangle) = 4326
-# #st_transform(rectangle, crs = 3035)
-# st_area(rectangle) * 1 / (1000 * 1000) # km2
-# st_area(rectangle) * 1 / (1852 * 1852) # nmi2
+ rectangle <- st_as_sfc("POLYGON((19 61.5, 20 61.5, 20 62, 19 62, 19 61.5))")
+ st_crs(rectangle) = 4326
+ st_transform(rectangle, crs = 3035)
+ as.numeric(st_area(rectangle) * 1 / (1000 * 1000)) # km2
+ as.numeric(st_area(rectangle) * 1 / (1852 * 1852)) # nmi2
+ 
