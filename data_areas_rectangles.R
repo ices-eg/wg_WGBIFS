@@ -87,4 +87,4 @@ a7 <- merge(a5, a6, all = TRUE)
 
 a8 <- a7[, .(ID = paste0(SubDivision,"_", Rectangle), SubDivision, Rectangle, SISP = round(Area_NM2.x.x,1), STOX = round(Area_NM2.y.x, 1), GEBCO = round(Area_NM2.x.y, 1), EMODnet = round(Area_NM2.y.y, 1))]
 
-st_write(ices_subdivision_rectangles_multipolygon, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_Comparison_R.csv")
+st_write(a8, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_Comparison_R.csv")
