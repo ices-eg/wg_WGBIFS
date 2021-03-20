@@ -4,8 +4,7 @@ library(ggplot2)
 library(dplyr)
 library(ncdf4)
 library(raster)
-library(lwgeom)
-#library(httr)
+library(stars)
 
 # Read ICES Areas
 # ices_areas <- st_read("https://gis.ices.dk/gis/rest/services/ICES_reference_layers/ICES_Areas/MapServer/0/query?where=1%3D1&outFields=%2A&returnGeometry=true&f=geojson")
@@ -33,62 +32,59 @@ st_crs(ices_areas_rectangles)
 st_is_valid(ices_areas_rectangles)
 ggplot() + geom_sf(data = ices_areas_rectangles) + coord_sf()
 
-# Read GEBCO
-gebco <- raster("D:/GIS/GEBCO/GEBCO_2020.nc")
+# Read GEBCO or EMODnet
+raster <- raster("D:/GIS/GEBCO/GEBCO_2020.nc")
+#raster <- raster("D:/GIS/EMODnet/EMODnet_mosaic.nc")
+names(raster) <- "depth"
 
 # Crop to ICES Areas
-gebco_baltic <- crop(gebco, extent(st_transform(ices_areas, crs = 4326)))
+baltic_raster <- crop(raster, extent(st_transform(ices_areas, crs = 4326)))
 
-# Make contour 10 m depth contour line as polygon transformed into CRS 3035 and make geometries valid by the buffer trick
-gebco_baltic_contour <- rasterToContour(gebco_baltic, levels = c(-10)) %>% st_as_sf() %>% st_cast("MULTIPOLYGON") %>% st_buffer(0.0)
-#gebco_baltic_contour <- rasterToContour(gebco_baltic, levels = c(-10)) %>% st_as_sf() %>% st_cast("MULTIPOLYGON") %>% st_transform(crs = 3035) %>% st_buffer(0.0)
+# Recalculate raster values to facilitate raster to polygon functions - 10 m
+m <- c(-9999, -10, 1,  -10, 9999, 2)
+rclmat <- matrix(m, ncol=3, byrow=TRUE)
+baltic_raster_bin <- reclassify(baltic_raster, rclmat)
 
-st_is_valid(gebco_baltic_contour)
-ggplot() + geom_sf(data = gebco_baltic_contour) + coord_sf()
+#Create polygon
+baltic_polygon <- st_as_stars(baltic_raster_bin) %>%
+        st_as_sf(merge = TRUE) %>%
+        filter(depth < 2) %>%
+        st_make_valid()
+st_is_valid(baltic_polygon)
+ggplot() + geom_sf(data = baltic_polygon) + coord_sf()
 
-# Combined
-ices_areas_rectangles_contour <- st_intersection(ices_areas_rectangles, gebco_baltic_contour)
+# Combined with ices areas rectangles
+ices_areas_rectangles_polygon <- st_intersection(ices_areas_rectangles, baltic_polygon)
 
-ggplot() + geom_sf(data = ices_areas_rectangles_contour) + coord_sf()
+ggplot() + geom_sf(data = ices_areas_rectangles_polygon) + coord_sf()
 
-ices_areas_rectangles_contour$Area__Rectangle <- paste0(ices_areas_rectangles_contour$Area_Full,".", ices_areas_rectangles_contour$ICESNAME)
-ices_areas_rectangles_contour$Area__M2 <- as.numeric(st_area(ices_areas_rectangles_contour))
-ices_areas_rectangles_contour$Area__KM2 <- as.numeric(st_area(ices_areas_rectangles_contour) * 1 / (1000 * 1000))
-ices_areas_rectangles_contour$Area__NM2 <- as.numeric(st_area(ices_areas_rectangles_contour) * 1 / (1852 * 1852))
+# Group polygons into multipolygons by SubDivision and Rectangle
+#ices_subdivision_rectangles_multipolygon <- aggregate(ices_areas_rectangles_polygon, list(ices_areas_rectangles_polygon$SubDivision, ices_areas_rectangles_polygon$ICESNAME), function(x) x[1])
+ices_subdivision_rectangles_multipolygon <- ices_areas_rectangles_polygon %>%
+        group_by(SubDivision, Rectangle = ICESNAME) %>%
+        summarise()
+
+ices_subdivision_rectangles_multipolygon$SubDivision_Rectangle <- paste0(ices_subdivision_rectangles_multipolygon$SubDivision,"_", ices_subdivision_rectangles_multipolygon$Rectangle)
+#ices_subdivision_rectangles_multipolygon$Area_M2 <- as.numeric(st_area(ices_subdivision_rectangles_multipolygon))
+#ices_subdivision_rectangles_multipolygon$Area_KM2 <- as.numeric(st_area(ices_subdivision_rectangles_multipolygon) * 1 / (1000 * 1000))
+ices_subdivision_rectangles_multipolygon$Area_NM2 <- as.numeric(st_area(ices_subdivision_rectangles_multipolygon) * 1 / (1852 * 1852))
+
+ggplot() + geom_sf(data = ices_subdivision_rectangles_multipolygon) + coord_sf()
 
 # Write
-st_write(ices_areas_rectangles_contour[c("Area__Rectangle", "Area__NM2")], "Data/WGBIFS_mapped_areas_R.csv")
+st_write(ices_subdivision_rectangles_multipolygon, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_GEBCO_R.csv")
+#st_write(ices_subdivision_rectangles_multipolygon, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_EMODnet_R.csv")
 
-# Misc
-# st_write(wgbifs_mapped_areas[c("SubDivision", "Rectangle", "Area_NM")], "Data/b.csv")
-# st_write(gebco_baltic_contour_areas_rectangles[c("SubDivisio", "ICESNAME", "Area_NM2")], "Data/c.csv")
-# 
-# x <- st_intersection(ices_areas, ices_rectangles) %>%
-#   st_intersection(gebco_baltic_contour)
-# 
-# y <- st_intersection(gebco_baltic_contour, ices_areas) %>%
-#   st_intersection(ices_rectangles)
-# 
-# z <- st_intersection(gebco_baltic_contour, ices_rectangles) %>%
-#   st_intersection(ices_areas)
-# 
-# sisp_8_areas <- fread("Data/SISP_8_areas.csv")
-# 
-# wgbifs_mapped_areas <- st_read("Data/WGBIFS_mapped_areas.csv")
-# 
-# ggplot() + geom_sf(data = ices_areas_rectangles_contour) + coord_sf()
-# 
-# # 38G0
- rectangle <- st_as_sfc("POLYGON((10 54.5, 11 54.5, 11 55, 10 55, 10 54.5))")
- st_crs(rectangle) = 4326
- st_transform(rectangle, crs = 3035)
- as.numeric(st_area(rectangle) * 1 / (1000 * 1000)) # km2
- as.numeric(st_area(rectangle) * 1 / (1852 * 1852)) # nmi2
-# 
-# #52G9
- rectangle <- st_as_sfc("POLYGON((19 61.5, 20 61.5, 20 62, 19 62, 19 61.5))")
- st_crs(rectangle) = 4326
- st_transform(rectangle, crs = 3035)
- as.numeric(st_area(rectangle) * 1 / (1000 * 1000)) # km2
- as.numeric(st_area(rectangle) * 1 / (1852 * 1852)) # nmi2
- 
+# Merge results
+a1 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_SISP_8_areas.csv") %>% setkey("SubDivision", "Rectangle")
+a2 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_StoX_areas.csv") %>% setkey("SubDivision", "Rectangle")
+a3 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_ices_subdivision_rectangles_multipolygon_GEBCO_R.csv") %>% setkey("SubDivision", "Rectangle")
+a4 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_ices_subdivision_rectangles_multipolygon_EMODnet_R.csv") %>% setkey("SubDivision", "Rectangle")
+
+a5 <- merge(a1, a2, all = TRUE)
+a6 <- merge(a3, a4, all = TRUE)
+a7 <- merge(a5, a6, all = TRUE)
+
+a8 <- a7[, .(ID = paste0(SubDivision,"_", Rectangle), SubDivision, Rectangle, SISP = round(Area_NM2.x.x,1), STOX = round(Area_NM2.y.x, 1), GEBCO = round(Area_NM2.x.y, 1), EMODnet = round(Area_NM2.y.y, 1))]
+
+st_write(ices_subdivision_rectangles_multipolygon, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_Comparison_R.csv")
