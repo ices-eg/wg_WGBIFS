@@ -5,6 +5,7 @@ library(dplyr)
 library(ncdf4)
 library(raster)
 library(stars)
+library(smoothr)
 
 # Read ICES Areas
 # ices_areas <- st_read("https://gis.ices.dk/gis/rest/services/ICES_reference_layers/ICES_Areas/MapServer/0/query?where=1%3D1&outFields=%2A&returnGeometry=true&f=geojson")
@@ -33,8 +34,17 @@ st_is_valid(ices_areas_rectangles)
 ggplot() + geom_sf(data = ices_areas_rectangles) + coord_sf()
 
 # Read GEBCO or EMODnet
-raster <- raster("D:/GIS/GEBCO/GEBCO_2020.nc")
-#raster <- raster("D:/GIS/EMODnet/EMODnet_mosaic.nc")
+dataset <- "GEBCO_08"
+
+if (dataset=="GEBCO_08") {
+        raster <- raster("D:/GIS/GEBCO/GEBCO_08.nc")
+}
+if (dataset=="GEBCO_2020") {
+        raster <- raster("D:/GIS/GEBCO/GEBCO_2020.nc")
+}
+if (dataset=="EMODnet") {
+        raster <- raster("D:/GIS/EMODnet/EMODnet_mosaic.nc")
+}
 names(raster) <- "depth"
 
 # Crop to ICES Areas
@@ -55,11 +65,12 @@ ggplot() + geom_sf(data = baltic_polygon) + coord_sf()
 
 # Combined with ices areas rectangles
 ices_areas_rectangles_polygon <- st_intersection(ices_areas_rectangles, baltic_polygon)
+ices_areas_rectangles_polygon <- st_collection_extract(ices_areas_rectangles_polygon, c("POLYGON"))
+ices_areas_rectangles_polygon <- densify(ices_areas_rectangles_polygon, max_distance = 0.05)
 
 ggplot() + geom_sf(data = ices_areas_rectangles_polygon) + coord_sf()
 
 # Group polygons into multipolygons by SubDivision and Rectangle
-#ices_subdivision_rectangles_multipolygon <- aggregate(ices_areas_rectangles_polygon, list(ices_areas_rectangles_polygon$SubDivision, ices_areas_rectangles_polygon$ICESNAME), function(x) x[1])
 ices_subdivision_rectangles_multipolygon <- ices_areas_rectangles_polygon %>%
         group_by(SubDivision, Rectangle = ICESNAME) %>%
         summarise()
@@ -72,19 +83,26 @@ ices_subdivision_rectangles_multipolygon$Area_NM2 <- as.numeric(st_area(ices_sub
 ggplot() + geom_sf(data = ices_subdivision_rectangles_multipolygon) + coord_sf()
 
 # Write
-st_write(ices_subdivision_rectangles_multipolygon, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_GEBCO_R.csv")
-#st_write(ices_subdivision_rectangles_multipolygon, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_EMODnet_R.csv")
+st_write(ices_subdivision_rectangles_multipolygon, paste0("Data/WGBIFS_ices_subdivision_rectangles_multipolygon_", dataset, "_R.csv"), layer_options = "GEOMETRY=AS_WKT")
+st_write(ices_subdivision_rectangles_multipolygon, paste0("Data/WGBIFS_ices_subdivision_rectangles_multipolygon_", dataset, "_R.shp"))
 
 # Merge results
-a1 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_SISP_8_areas.csv") %>% setkey("SubDivision", "Rectangle")
-a2 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_StoX_areas.csv") %>% setkey("SubDivision", "Rectangle")
-a3 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_ices_subdivision_rectangles_multipolygon_GEBCO_R.csv") %>% setkey("SubDivision", "Rectangle")
-a4 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_ices_subdivision_rectangles_multipolygon_EMODnet_R.csv") %>% setkey("SubDivision", "Rectangle")
+a1 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_SISP_8_areas.csv") %>%
+        rename(SISP_Area_NM2 = Area_NM2) %>%
+        setkey("SubDivision", "Rectangle")
+a2 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_StoX_areas.csv") %>%
+        rename(StoX_Area_NM2 = Area_NM2) %>%
+        setkey("SubDivision", "Rectangle")
+a3 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_ices_subdivision_rectangles_multipolygon_GEBCO_08_R.csv")[, .(SubDivision, Rectangle, Area_NM2 = round(Area_NM2, 1))] %>%
+        rename(GEBCO_08_Area_NM2 = Area_NM2) %>%
+        setkey("SubDivision", "Rectangle")
+a4 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_ices_subdivision_rectangles_multipolygon_GEBCO_2020_R.csv")[, .(SubDivision, Rectangle, Area_NM2 = round(Area_NM2, 1))] %>%
+        rename(GEBCO_2020_Area_NM2 = Area_NM2) %>%
+        setkey("SubDivision", "Rectangle")
+a5 <- fread("D:/GitHub/wg_WGBIFS/Data/WGBIFS_ices_subdivision_rectangles_multipolygon_EMODnet_R.csv")[, .(SubDivision, Rectangle, Area_NM2 = round(Area_NM2, 1))] %>%
+        rename(EMODnet_Area_NM2 = Area_NM2) %>%
+        setkey("SubDivision", "Rectangle")
 
-a5 <- merge(a1, a2, all = TRUE)
-a6 <- merge(a3, a4, all = TRUE)
-a7 <- merge(a5, a6, all = TRUE)
+a <- Reduce(function(...) merge(..., all = TRUE), list(a1, a2, a3, a4, a5))
 
-a8 <- a7[, .(ID = paste0(SubDivision,"_", Rectangle), SubDivision, Rectangle, SISP = round(Area_NM2.x.x,1), STOX = round(Area_NM2.y.x, 1), GEBCO = round(Area_NM2.x.y, 1), EMODnet = round(Area_NM2.y.y, 1))]
-
-st_write(a8, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_Comparison_R.csv")
+st_write(a, "Data/WGBIFS_ices_subdivision_rectangles_multipolygon_Comparison_R.csv")
