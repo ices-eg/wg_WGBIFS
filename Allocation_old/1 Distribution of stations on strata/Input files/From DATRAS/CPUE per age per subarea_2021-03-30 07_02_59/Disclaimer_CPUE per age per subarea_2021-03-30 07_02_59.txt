@@ -1,0 +1,117 @@
+DATA DISCLAIMER
+
+1. IMPORTANT 
+
+Thank you for downloading data from the International Council for the Exploration of the Sea (ICES). 
+
+By downloading data from the ICES website and sub-domains [ices.dk] you are agreeing to the terms and conditions of use as described in this document and any documents referred to in this text.
+
+Please read this before using the downloaded data, as this file contains specific information about the use of the data provided, limitations, and known issues. This file contains contact information regarding the origins of the data (where supplied) as well as how to cite these data in a publication or a data product. 
+
+This file is the counterpart to the data download file CPUE per age per subarea_2021-03-30 07_02_59
+and was downloaded on 30/03/2021 07:02:59 by IP 192.38.90.123 . 
+
+Note that data download is built on the following national submissions:
+2016:DE,DK,LT,LV,PL,SE
+2017:DE,DK,LT,LV,PL,SE
+2018:DE,DK,LT,LV,PL,RU,SE
+2019:DE,DK,LT,LV,PL,SE
+2020:DE,DK,LT,LV,PL,SE
+
+
+2. CONTACT INFORMATION
+
+For feedback or queries about this data download, contact ICES at:
+
+Email: DatrasAdministration@ices.dk 
+Tel.:	+45 3338 6700
+
+Find more information at:
+Web:	https://www.ices.dk/marine-data/Pages/default.aspx
+
+
+3. DATA SPECIFIC INFORMATION
+
+Data from the trawl survey database are freely available for downloading.
+
+Whilst the data have been extensively checked by both the supplying institutes
+and ICES there are inherent flaws in gathering the information. 
+ For example:
+
+* In spite of the fact that now all bottom trawl surveys are in the same database
+   and often at least partially overlap in time period or area covered, there are
+   differences between the surveys that do not allow the combination of data from 
+   different surveys in one analysis unless this point is specifically addressed. 
+
+* There is no guarantee that the gears deployed adequately sample all species 
+   (e.g. catchability of flatfish in beam trawls is markedly higher than that of GOV).
+   It should be realized that each survey gear catches a gear-dependent subset 
+   of the fish community.
+
+* A common property of all surveys is that over time species determination skills
+   improve. As a result, new taxa will emerge in the dataset that were previously 
+   reported as part of another closely-related taxon.
+
+* Over time the sampling procedures, gear characteristics, timing of the survey 
+   or the area covered may have changed thereby influencing the catches. Expert 
+   advice recommendations are given in order to prevent bias in the analyses using
+   DATRAS catch data, caused by such factors.
+
+*  Please check on the submission status https://datras.ices.dk/Data_products/Submission_Status.aspx
+   before finalizing your report.
+
+*  Data product 'Litter Assessment Output' provides data mapping to Exclusive Economic Zones in the 
+   field 'EEZ'. Layer with EEZ boundaries is from the http://www.marineregions.org/, 
+   and ICES does not bear any responsibility for EEZ definitions. 
+   When using this data product, please include acknowledgement of the EEZ data source as in the section below.  
+
+Thus users are urged to treat the data with caution. If the user has any queries
+on the validity of the data or the conclusions to be drawn they should contact 
+ either the ICES Secretariat or the Chairs of the relevant Working Group 
+ (IBTS, BITS or BEAM)
+
+
+4. TERMS OF USE: 
+
+ICES makes data available to users in an open, timely and easy way, but ICES remains dependent on data contributions.
+
+ - Correct and appropriate data interpretation is solely the responsibility of data users.
+ - Data Users must not expressly or otherwise imply ICES substantiation of their work, results, conclusions and/or recommendations.
+ - Data sources must be duly acknowledged.
+ - Data Users must respect any and all restrictions on the use or reproduction of data such as restrictions on use for commercial purposes.
+ - Data Users are obliged to inform ICES of any suspected problems in the data.
+ - Data Users are encouraged to inform ICES of possible sources of other relevant data.
+ 
+The full ICES data policy and terms of use can be viewed at:
+https://ices.dk/marine-data/guidelines-and-policy/Pages/ICES-data-policy.aspx. 
+
+Data held at ICES are used for various assessments and working group purposes. The data guidelines and procedures for these can be viewed at: 
+https://ices.dk/marine-data/guidelines-and-policy/Pages/default.aspx
+
+
+5. DATA ACKNOWLEDGMENT
+
+
+Data sources should be acknowledged by a citation. Detailed information and examples of citations can be found in ICES Data Policy: https://ices.dk/marine-data/guidelines-and-policy/Pages/ICES-data-policy.aspx.
+
+A minimum requirement citation would include the following:
+"ICES BITS (Baltic International Trawl Survey) dataset .ICES, Copenhagen"  
+
+Please acknowledge the following data sources when using the data:
+Source : BITS (Baltic International Trawl Survey)
+
+For Litter Assessment Output, please acknowledge the EEZ data source as follows:
+
+VLIZ (2014). Union of the ESRI Country shapefile and the Exclusive Economic Zones (version 9). 
+Available online at http://www.marineregions.org/. Consulted on 2017-02-15.
+
+
+6. METADATA
+
+Further details about the dataset and related services can be found at the metadata catalogue.
+ICES Datasets: https://gis.ices.dk/geonetwork/srv/eng/catalog.search#/search?facet.q=type%2Fdataset%26orgName%2FICES
+Services: https://gis.ices.dk/geonetwork/srv/eng/catalog.search#/search?facet.q=type%2Fservice
+
+
+- END OF FILE -
+
