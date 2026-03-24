@@ -1,0 +1,23 @@
+Country;Vessel;Quarter;AreaSection;Year;PlannedNumberOfHauls
+Germany;Solea;4;2224;2019;57
+Denmark;Havfisken;4;2224;2019;21
+Poland;Baltica;4;2224;2019;3
+Denmark;Dana;4;2528;2019;55
+Estonia;Commercial vessel;4;2528;2019;10
+Finland; Aranda;4;2528;2019;0
+Latvia;Chartered vessel;4;2528;2019;25
+Lithuania;Chartered vessel;4;2528;2019;6
+Poland;Baltica;4;2528;2019;57
+Russia;Atlantniro/Atlantida;4;2528;2019;0
+Sweden;Swea;4;2528;2019;50
+Germany;Solea;1;2224;2020;60
+Denmark;Havfisken;1;2224;2020;21
+Poland;Baltica;1;2224;2020;5
+Denmark;Dana;1;2528;2020;55
+Estonia;Commercial vessel;1;2528;2020;0
+Finland; Aranda;1;2528;2020;0
+Latvia;Chartered vessel;1;2528;2020;25
+Lithuania;Chartered vessel;1;2528;2020;6
+Poland;Baltica;1;2528;2020;64
+Russia;Atlantniro/Atlantida;1;2528;2020;0
+Sweden;Dana;1;2528;2020;50
