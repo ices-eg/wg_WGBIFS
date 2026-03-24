@@ -120,6 +120,7 @@ for (yr in years) { #subset year
     hl <- getDATRAS(record = "HL", survey = "BITS", c((yr-5):yr), q) #datras pakage funtion for direct download
     
     #get data type for hl, to calculate length dist evenly between countries
+    hh <- hh[hh$HaulVal == "V", ]
     hl <- merge(hl, hh[, c("Year", "Country", "Ship", "HaulNo", "DataType", "HaulDur")],
                 by = c("Year", "Country", "Ship", "HaulNo"))
     
