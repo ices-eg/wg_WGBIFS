@@ -14,13 +14,13 @@ species <- c("Gadus morhua", "Limanda limanda", "Platichthys flesus",
              "Pleuronectes platessa", "Scophthalmus maximus", "Scophthalmus rhombus")
 
 #areas
-ices <- st_read("inputs/area/ICES_Areas_20160601_cut_dense_3857.shp")%>%
+ices <- st_read(paste0(wd, "inputs/ICES_Areas_20160601_cut_dense_3857.shp"))%>%
   st_transform(4326)
 
 #placement of plots
-dir.create(paste0(wd, year, "/cpue"), showWarnings = FALSE)
-dir.create(paste0(wd, year, "/cpue/q", quarters[1]), showWarnings = FALSE)
-dir.create(paste0(wd, year, "/cpue/q", quarters[2]), showWarnings = FALSE)
+dir.create(paste0(wd, "wg", year, "/cpue"), showWarnings = FALSE)
+dir.create(paste0(wd, "wg", year, "/cpue/q", quarters[1]), showWarnings = FALSE)
+dir.create(paste0(wd, "wg", year, "/cpue/q", quarters[2]), showWarnings = FALSE)
 
 ##plot function
 plotBuble <- function(dat, tit, z) {
@@ -58,7 +58,7 @@ plotBuble <- function(dat, tit, z) {
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank())
   
-  ggsave(paste0(wd, year, "/cpue/q", q, "/",tit, ".png"), 
+  ggsave(paste0(wd, "wg", year, "/cpue/q", q, "/",tit, ".png"), 
          width = 500, height = 300, units = 'mm', dpi = 200)
   
 }

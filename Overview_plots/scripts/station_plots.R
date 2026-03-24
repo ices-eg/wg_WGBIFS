@@ -11,10 +11,10 @@ sf_use_s2(F)
 wd <- "Overview_plots/"
 year <- 2026
 years <- c(2025, 2026)
-quarters <- c(1, 4)
+quarters <- c(1,4)
 
-dir.create(paste0(wd, year, "/stations"), showWarnings = FALSE)
-dir.create(paste0(wd, year, "/lendist"), showWarnings = FALSE)
+dir.create(paste0(wd, "wg", year, "/stations"), showWarnings = FALSE)
+dir.create(paste0(wd, "wg", year, "/lendist"), showWarnings = FALSE)
 
 #
 species <- c("Gadus morhua", "Limanda limanda", "Platichthys flesus", 
@@ -24,7 +24,7 @@ sps <- getCodeList("SpecWoRMS", date = NULL)
 sps$Valid_Aphia <- sps$Key
 
 #areas
-ices <- st_read("inputs/area/ICES_Areas_20160601_cut_dense_3857.shp")%>%
+ices <- st_read(paste0(wd, "inputs/ICES_Areas_20160601_cut_dense_3857.shp"))%>%
   st_transform(4326)
 
 #colors
@@ -48,7 +48,7 @@ plotStation <- function(dat, tit) {
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank())
   
-  ggsave(paste0(wd, year, "/stations/", tit, ".png"), 
+  ggsave(paste0(wd, "wg", year, "/stations/", tit, ".png"), 
          width = 320, height = 300, units = 'mm', dpi = 300)
   
 }
@@ -69,7 +69,7 @@ plotGears <- function(dat, x, y, tit) {
     ylab(y)+
     theme_bw(base_size = 20)
   
-  ggsave(paste0(wd, year, "/stations/", tit, ".png"), 
+  ggsave(paste0(wd, "wg", year, "/stations/", tit, ".png"), 
          width = 320, height = 300, units = 'mm', dpi = 300)
   
 }
@@ -99,7 +99,7 @@ plotLen <- function(dat, sp, tit) {
     ggtitle(sp)+
     theme_bw(base_size = 20)
   
-  ggsave(paste0(wd, year, "/lendist/lenDist_", tit, ".png"), 
+  ggsave(paste0(wd, "wg", year, "/lendist/lenDist_", tit, ".png"), 
          width = 320, height = 300, units = 'mm', dpi = 300)
   
 }
