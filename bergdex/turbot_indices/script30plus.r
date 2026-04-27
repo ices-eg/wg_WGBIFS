@@ -16,13 +16,15 @@ do.leaveout = FALSE
 do.retro = FALSE
 ## Use multiple cores to speed up things (only works if you have MKL installed)
 ##try( setMKLthreads(2) )
-
+setwd("C:/Dateien/Workshops und Fortbildungen/WGBIFS/wg_WGBIFS/bergdex/turbot_indices")
+species = "Scophthalmus maximus"
 
 if(!file.exists("TurbotDATRAS.RData")){
-    BITS <- readExchangeDir("~/Documents/DATRAS/exchange/BITS/",strict=FALSE)
+    BITS <- readExchangeDir("C:/Dateien/Workshops und Fortbildungen/WGBIFS/wg_WGBIFS/bergdex/turbot_indices/Documents/DATRAS/exchange/BITS/",strict=FALSE)
     
-    BITS <- subset(BITS,Species=="Psetta maxima" | (SpecCode==127149 & SpecCodeType=="W"))
-
+    BITS <- subset(BITS,Species=="Scophthalmus maximus" | (SpecCode==127149 & SpecCodeType=="W"), Year %in% 1995:2025)
+  #  BITS <- subset(BITS,Species==species)
+    
     
     geartab <- xtabs(~Gear,data=BITS[[2]])
     
@@ -33,7 +35,7 @@ if(!file.exists("TurbotDATRAS.RData")){
     
     gtab2 <- aggregate(Ntot ~ Gear,data=BITS[[2]],FUN=sum)
 
-    ## only gears that caught at least 1000 flounders in total
+    ## only gears that caught at least 300 turbot in total
     goodGears = gtab2[gtab2$Ntot>300,1]
     
     BITS <- subset(BITS,Gear %in% goodGears, Quarter %in% c("1","4"))
@@ -46,7 +48,7 @@ if(!file.exists("TurbotDATRAS.RData")){
     
     BITS <- subset(BITS,!is.na(Depth))
     
-    BITS<-addSpatialData(BITS,"~/Documents/shapefiles/ICES_areas.shp")
+    BITS<-addSpatialData(BITS,"C:/Dateien/Workshops und Fortbildungen/WGBIFS/wg_WGBIFS/bergdex/turbot_indices/Documents/shapefiles/ICES_areas.shp")
 
     
     d <- BITS
@@ -67,26 +69,26 @@ if(!file.exists("TurbotDATRAS.RData")){
 }
 
 
-d = subset(d, !is.na(Depth), HaulVal!="I")
+ d = subset(d, !is.na(Depth), HaulVal!="I")
 
 ## Re-order Gear levels (most common first)
-d$Gear = factor(d$Gear, levels = names(sort(summary(d$Gear),decreasing=TRUE)))
+ d$Gear = factor(d$Gear, levels = names(sort(summary(d$Gear),decreasing=TRUE)))
 
 
-summary(d[[1]]$LngtCm)
-summary(d[[3]]$LngtCm)
+ summary(d[[1]]$LngtCm)
+ summary(d[[3]]$LngtCm)
 
-d = addSpectrum(d,by=1)
+ d = addSpectrum(d,by=1)
 
 
-nyears = nlevels(d$Year)
+ nyears = nlevels(d$Year)
 
-d$Ntot = rowSums(d$N)
+ d$Ntot = rowSums(d$N)
 ## Remove ships that never observed any flounder
-d = removeZeroClusters(d,factors=c("Ship"))
+ d = removeZeroClusters(d,factors=c("Ship"))
 
 ## Estimate L-W relationship with time-varying params:  W_t = a_t * L ^ b_t 
-LWmodel <- gam( log(IndWgt) ~ Quarter + s(ctime,k=round(nyears/2)) + s( log(LngtCm),by=ctime),data=subset(d[[1]],IndWgt>0))
+ LWmodel <- gam( log(IndWgt) ~ Quarter + s(ctime,k=round(nyears/2)) + s( log(LngtCm),by=ctime),data=subset(d[[1]],IndWgt>0))
 
 years = as.numeric(levels(d$Year))
 
@@ -108,17 +110,17 @@ for(qq in c("1","4")){
     }
 }
 
-par(mfrow=c(1,1))
-plot(years,LWsQ1[,26]/mean(LWsQ1[,26]),ylim=c(0.8,1.2),main="26 cm turbot weight")
-points(years,LWsQ4[,26]/mean(LWsQ4[,26]),col=2)
-abline(h=1)
-legend("topright",col=1:2,legend=c("Q1","Q4"),pch=1)
+ par(mfrow=c(1,1))
+ plot(years,LWsQ1[,26]/mean(LWsQ1[,26]),ylim=c(0.8,1.2),main="26 cm turbot weight")
+ points(years,LWsQ4[,26]/mean(LWsQ4[,26]),col=2)
+ abline(h=1)
+ legend("topright",col=1:2,legend=c("Q1","Q4"),pch=1)
 
-plot(d)
+ plot(d)
 
-par(mfrow=c(2,1))
-plot(colSums(d$N),type="h",main="Total numbers by length")
-plot(colSums(d$NW),type="h",main="Total biomass by length")
+ par(mfrow=c(2,1))
+ plot(colSums(d$N),type="h",main="Total numbers by length")
+ plot(colSums(d$NW),type="h",main="Total biomass by length")
 
 d$biomass = rowSums(d$NW[,29:ncol(d$NW)])/1000
 
@@ -129,7 +131,7 @@ points(d$lon[zero],d$lat[zero],pch=".",col=2,cex=2)
 maps::map("worldHires", fill = TRUE, plot = TRUE,add = TRUE, col = grey(0.8))
 
 
-grid = getBathyGrid(d,minDepth=5,maxDepth=190,resolution=4,maxDist=0.2,shapefile="~/Documents/shapefiles/ICES_areas.shp",select="ICES_SUB")
+grid = getBathyGrid(d,minDepth=5,maxDepth=190,resolution=4,maxDist=0.2,shapefile="C:/Dateien/Workshops und Fortbildungen/WGBIFS/wg_WGBIFS/bergdex/turbot_indices/Documents/shapefiles/ICES_areas.shp",select="ICES_SUB")
 
 grid = subset(grid,ICES_SUB %in% as.character(22:28))
 
@@ -205,6 +207,7 @@ dQ4 = subset(d,Quarter=="4")
 library(MASS)
 SIQ4 <- redoSurveyIndex(dQ4,SI,predD=gridlistQ4,predfix=list(Quarter="4"),mc.cores=1)
 
+#SIQ4 <- redoSurveyIndex(dQ4,SI,predD=gridlistQ4,predfix=list(Quarter="4"))
 
 par(mfrow=c(3,1))
 depthDist(SI,gridlist[[1]],by=5,main="Depth distribution Q1")
