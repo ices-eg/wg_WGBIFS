@@ -10,9 +10,7 @@ library(mapdata)
 library(marmap)
 library(RANN)
 
- setwd("C:/Dateien/Workshops und Fortbildungen/WGBIFS/wg_WGBIFS/bergdex/flounder_indices")
-
- png(filename="flounderplot%03d.png",width=1024,height=1024,pointsize=16)
+png(filename="flounderplot%03d.png",width=1024,height=1024,pointsize=16)
 
 ## Extra stuff (disable to make script run much faster)
 do.noship = FALSE
@@ -22,7 +20,7 @@ do.leaveout = FALSE
 ## Use multiple cores to speed up things (only works if you have MKL installed)
 ##try( setMKLthreads(2) )
 
-
+# setwd("C:/Dateien/Workshops und Fortbildungen/WGBIFS/wg_WGBIFS/bergdex/flounder_indices")
 species = "Platichthys flesus"
 
 if(!file.exists("flounderDATRAS.RData")){
@@ -306,20 +304,6 @@ abline(h=1)
 ## Calculate indices by subarea
 ###################################
 
-#grid2223 = subset(grid,ICES_SUB %in% as.character(22:23))
-
-#gridlist2223 = list()
-#gridlist2223Q4 = list()
-#for(yy in levels(d$Year)){
-#    gridlist2223[[yy]] = grid2223
-#    gridlist2223[[yy]]$Year=yy
-#    gridlist2223[[yy]]$YearQ=paste(yy,"1")
-#    gridlist2223[[yy]]$Quarter="1"
-#    gridlist2223Q4[[yy]] = gridlist2223[[yy]]
-#    gridlist2223Q4[[yy]]$YearQ=paste(yy,"4")
-#    gridlist2223Q4[[yy]]$Quarter="4"
-#}
-
 grid2123 = subset(grid,ICES_SUB %in% as.character(21:23))
 
 gridlist2123 = list()
@@ -333,6 +317,23 @@ for(yy in levels(d$Year)){
     gridlist2123Q4[[yy]]$YearQ=paste(yy,"4")
     gridlist2123Q4[[yy]]$Quarter="4"
 }
+
+
+
+grid2425 = subset(grid,ICES_SUB %in% as.character(24:25))
+
+gridlist2425 = list()
+gridlist2425Q4 = list()
+for(yy in levels(d$Year)){
+  gridlist2425[[yy]] = grid2425
+  gridlist2425[[yy]]$Year=yy
+  gridlist2425[[yy]]$YearQ=paste(yy,"1")
+  gridlist2425[[yy]]$Quarter="1"
+  gridlist2425Q4[[yy]] = gridlist2425[[yy]]
+  gridlist2425Q4[[yy]]$YearQ=paste(yy,"4")
+  gridlist2425Q4[[yy]]$Quarter="4"
+}
+
 
 
 grid2628 = subset(grid,ICES_SUB %in% as.character(26:28))
@@ -350,12 +351,6 @@ for(yy in levels(d$Year)){
 
 }
 
-#SI.2223 <- redoSurveyIndex(d,SI,gridlist2223,predfix=list(Quarter="1"))
-#SI.2223.Q4 <- redoSurveyIndex(dQ4,SI,gridlist2223Q4,predfix=list(Quarter="4"))
-
-#par(mfrow=c(1,1),mar=c(4,4,4,4))
-#surveyIndex:::plot.SIlist(list(Q1=SI.2223,Q4=SI.2223.Q4),rescale=TRUE,main="22-23 Biomass>20 cm",allCI=TRUE)
-#abline(h=1)
 
 SI.2123 <- redoSurveyIndex(d,SI,gridlist2123,predfix=list(Quarter="1"))
 SI.2123.Q4 <- redoSurveyIndex(dQ4,SI,gridlist2123Q4,predfix=list(Quarter="4"))
@@ -365,15 +360,24 @@ surveyIndex:::plot.SIlist(list(Q1=SI.2123,Q4=SI.2123.Q4),rescale=TRUE,main="21-2
 abline(h=1)
 
 
+SI.2425 <- redoSurveyIndex(d,SI,gridlist2425,predfix=list(Quarter="1"))
+SI.2425.Q4 <- redoSurveyIndex(dQ4,SI,gridlist2425Q4,predfix=list(Quarter="4"))
+
+par(mfrow=c(1,1),mar=c(4,4,4,4))
+surveyIndex:::plot.SIlist(list(Q1=SI.2425,Q4=SI.2425.Q4),rescale=TRUE,main="24-25 Biomass>20 cm",allCI=TRUE)
+abline(h=1)
+
+
 SI.2628 <- redoSurveyIndex(d,SI,gridlist2628,predfix=list(Quarter="1"))
 SI.2628.Q4 <- redoSurveyIndex(dQ4,SI,gridlist2628Q4,predfix=list(Quarter="4"))
+
+par(mfrow=c(1,1),mar=c(4,4,4,4))
 surveyIndex:::plot.SIlist(list(Q1=SI.2628,Q4=SI.2628.Q4),rescale=TRUE,main="26-28 Biomass>20 cm",allCI=TRUE)
 abline(h=1)
 
-#surveyIndex:::plot.SIlist(list(Q1.2628=SI.2628,Q4.2628=SI.2628.Q4,Q1.2223=SI.2223,Q4.2223=SI.2223.Q4),rescale=TRUE,main="Biomass>20 cm",allCI=TRUE)
-#abline(h=1)
-surveyIndex:::plot.SIlist(list(Q1.2628=SI.2628,Q4.2628=SI.2628.Q4,Q1.2123=SI.2123,Q4.2123=SI.2123.Q4),rescale=TRUE,main="Biomass>20 cm",allCI=TRUE)
+surveyIndex:::plot.SIlist(list(Q1.2628=SI.2628,Q4.2628=SI.2628.Q4,Q1.2425=SI.2425,Q4.2425=SI.2425.Q4),rescale=TRUE,main="Biomass>20 cm",allCI=TRUE)
 abline(h=1)
+
 
 xtabs(~ICES_SUB+Year,data=dQ4[[2]])
 xtabs(~ICES_SUB+Year,data=subset(d,Quarter=="1")[[2]])
@@ -387,9 +391,9 @@ xtabs(~ICES_SUB+Year,data=subset(d,Quarter=="1")[[2]])
 ## Write CSV files
 ######################
 
-#write.csv(data.frame(Year=rownames(SI.2223$idx),Index2223Q1=SI.2223$idx[,1],Index2223Q1.CV=SI.2223$idx.CV[,1]),file="index2223Q1.csv",row.names=FALSE)
+write.csv(data.frame(Year=rownames(SI.2425$idx),Index2425Q1=SI.2425$idx[,1],Index2425Q1.CV=SI.2425$idx.CV[,1]),file="index2425Q1.csv",row.names=FALSE)
 
-#write.csv(data.frame(Year=rownames(SI.2223.Q4$idx),Index2223Q4=SI.2223.Q4$idx[,1],Index2223Q4.CV=SI.2223.Q4$idx.CV[,1]),file="index2223Q4.csv",row.names=FALSE)
+write.csv(data.frame(Year=rownames(SI.2425.Q4$idx),Index2425Q4=SI.2425.Q4$idx[,1],Index2425Q4.CV=SI.2425.Q4$idx.CV[,1]),file="index2425Q4.csv",row.names=FALSE)
 
 write.csv(data.frame(Year=rownames(SI.2123$idx),Index2123Q1=SI.2123$idx[,1],Index2123Q1.CV=SI.2123$idx.CV[,1]),file="index2123Q1.csv",row.names=FALSE)
 
