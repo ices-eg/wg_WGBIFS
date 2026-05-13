@@ -7,7 +7,9 @@ library(surveyIndex)
 library(maps)
 library(mapdata)
 
-png(width=1024,height=1024,pointsize=16)
+setwd("C:/Dateien/Workshops und Fortbildungen/WGBIFS/wg_WGBIFS/bergdex/dab_indices")
+
+png(filename="dabplot%03d.png", width=1024,height=1024,pointsize=16)
 
 ## Extra stuff (disable to make script run much faster)
 do.noship = FALSE
