@@ -1,0 +1,24 @@
+SD;Layer;AreaSection;Quarter;DepthInterval;NHauls;comment;allocated;miss;mooved_to_layer;n_mooved;miss_after_move;mooved_to_area;n_mooved_area;miss_after_move_area;assign_exess
+22;8;2224;1; 0 - 19;14;OK;14;0;NA;NA;0;NA;NA;0;0
+22;9;2224;1; 20 - 39;23;OK;23;0;NA;NA;0;NA;NA;0;0
+22;10;2224;1; 40 - 59;3;Not enough stations in strata;1;2;9 from layer 10;2;0;NA;NA;0;NA
+23;8;2224;1; 0 - 19;3;OK;3;0;NA;NA;0;NA;NA;0;0
+23;9;2224;1; 20 - 39;3;OK;3;0;NA;NA;0;NA;NA;0;0
+24;9;2224;1; 20 - 39;21;OK;21;0;NA;NA;0;NA;NA;0;5
+24;10;2224;1; 40 - 59;22;OK;22;0;NA;NA;0;NA;NA;0;0
+24;11;2224;1; 60 - 79;1;Not enough stations in strata;0;1;10 from layer 11;1;0;NA;NA;0;NA
+25;9;2528;1; 20 - 39;28;Not enough stations in strata;12;16;10 from layer 9;4;12;26 from area 25;1;11;NA
+25;10;2528;1; 40 - 59;38;OK;38;0;NA;NA;0;NA;NA;0;2
+25;11;2528;1; 60 - 79;47;OK;47;0;NA;NA;0;NA;NA;0;0
+25;12;2528;1; 80 - 99;14;OK;14;0;NA;NA;0;NA;NA;0;0
+26;9;2528;1; 20 - 39;7;OK;7;0;NA;NA;0;NA;NA;0;2
+26;10;2528;1; 40 - 59;9;Not enough stations in strata;8;1;11 from layer 10;1;0;NA;NA;0;NA
+26;11;2528;1; 60 - 79;13;OK;13;0;NA;NA;0;NA;NA;0;0
+26;12;2528;1; 80 - 99;9;OK;9;0;NA;NA;0;NA;NA;0;0
+26;13;2528;1;100 - 119;4;OK;4;0;NA;NA;0;NA;NA;0;0
+27;10;2528;1; 40 - 59;2;OK;2;0;NA;NA;0;NA;NA;0;2
+27;11;2528;1; 60 - 79;4;OK;4;0;NA;NA;0;NA;NA;0;0
+27;12;2528;1; 80 - 99;4;OK;4;0;NA;NA;0;NA;NA;0;0
+28;9;2528;1; 10 - 39;8;Not enough stations in strata;4;4;10 from layer 9;4;0;NA;NA;0;NA
+28;10;2528;1; 40 - 59;6;OK;6;0;NA;NA;0;NA;NA;0;0
+28;11;2528;1; 60 - 79;13;OK;13;0;NA;NA;0;NA;NA;0;0

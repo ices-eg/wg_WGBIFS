@@ -1,5 +1,6 @@
 library(data.table)
 library(plyr)
+library(dplyr)
 library(sf)
 library(mapview)
 library(RANN)
@@ -14,11 +15,11 @@ source(paste0(wd, "scripts/fun_notTooClose.r"))
 source(paste0(wd, "scripts/fun_trackToSf.r"))
 
 #------Make plan for--------
-yr <- 2026
+yr <- 2027
 qtr <- 1
 
-sample(100)[1] #should only be done/ changed once pr plan..
-set.seed(58)
+sample(100)[1] #should only be done/ changed once pr plan.. and number put below
+set.seed(59) # to make re-run possible without changing everything
 
 #----------------------------
 Nplan<- read.table(paste0(wd, "planned/", yr, "_Q", qtr, "/NHaulPlanned_lengthCPUE.csv"), 
@@ -45,7 +46,7 @@ fun <- function(i) {
   plan <- Nplan[i, c("SD", "Layer")]
   
   td2 <- td[td$Area == area & td$Layer == layer, ]
-  
+  td2 <- td2[! is.na(td2$NrHaul), ]
   #deal with clustered hauls
   if (nrow(td2) != 0)
     td2 <- notTooClose(data = td2)
@@ -74,13 +75,12 @@ fun <- function(i) {
   td2
 }
 res <- rbind.fill(lapply(1:nrow(Nplan), fun))
-
 mapview(st_as_sf(res), zcol = "Area")
 
 ##############################################################################################
 #status
 status <- read.csv2(paste0(wd, "planned/", yr, "_Q", qtr, "/select_status.csv"))
-status <- merge(Nplan, status, by = c("SD", "Layer"))
+status <- merge(Nplan, status, by = c("SD", "Layer"), all.x = T)
 
 status$miss <- status$NHauls - status$allocated
 miss <- status[status$miss > 0, ]
@@ -194,7 +194,9 @@ fun <- function(j) {
 }
 new_area <- rbind.fill(lapply(1:length(unique(miss$SD)), fun))
 
-new_area$type <- "Mooved to new area"
+if (nrow(new_area) > 0) 
+  new_area$type <- "Mooved to new area"
+
 res <- rbind(res, new_area)
 mapview(st_as_sf(res), zcol = "type")
 
@@ -216,8 +218,10 @@ miss[, c("SD", "Layer", "miss_after_move_area")]
 potential <- status[status$miss == 0, c("SD", "Layer")]
 potential$assign_exess <- 0
 
-potential[potential$SD %in% c(25:26), "assign_exess"] <- 5
-potential <- potential[potential$assign_exess > 0, ]
+#potential[potential$SD %in% c(26) & potential$Layer == 2, "assign_exess"] <- 5
+potential[potential$SD %in% c(24) & potential$Layer == 9, "assign_exess"] <- 5
+potential[potential$SD %in% c(25:27) & potential$Layer == 9, "assign_exess"] <- 2
+potential[potential$SD %in% c(25:27) & potential$Layer == 10, "assign_exess"] <- 2
 
 #potential <- data.frame(SD = 26, Layer = 3, assign_exess = 1)
 #tmanually select where to allocate
@@ -234,6 +238,7 @@ fun <- function(k) {
   
   #exclude already chosen ones
   td4 <- td4[! td4$NrHaul %in% res$NrHaul, ]
+  td4 <- td4[! is.na(td4$NrHaul), ]
   
   if (nrow(td4) >= plan$assign_exess) {
     td4 <- td4[sample(nrow(td4), plan$assign_exess), ]
@@ -247,7 +252,15 @@ fun <- function(k) {
 manual <- rbind.fill(lapply(1:nrow(potential), fun))
 
 manual$type <- "assigned manually"
+manual <- manual[! is.na(manual$NrHaul), ]
 res <- rbind(res, manual)
+mapview(st_as_sf(res), zcol = "type")
+
+#manual manual assignment
+manual2 <- td[td$NrHaul %in% c(24021, 24303, 25002, 25001, 25540, 24288, 24344, 24348, 24347, 23066), ]
+manual2$type <- "assigned manually"
+res <- rbind(res, manual2)
+res <- res[res$NrHaul != 23014, ]
 mapview(st_as_sf(res), zcol = "type")
 
 #ammedns staus
@@ -256,6 +269,8 @@ write.csv2(status, paste0(wd, "planned/", yr, "_Q", qtr, "/select_status.csv"),
            row.names = F, quote = F)
 
 #final chack
+unique(duplicated(res$NrHaul))
+sum(Nplan$NHauls) - nrow(res) 
 nrow(res) == sum(Nplan$NHauls)
 
 ## final selection

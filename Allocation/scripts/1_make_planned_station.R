@@ -3,7 +3,7 @@ library(icesDatras)
 library(stats)
 
 #Make plan for
-yr <- 2026
+yr <- 2027
 qtr <- 1
 
 #READ INPUT FILES
@@ -124,9 +124,17 @@ kontrol$adjust <- kontrol$Nplanned != kontrol$SumPlannedStations
 #   Initialy no adjustments should be made (all set to "0")
 ####################################################################
 #Add as many strata as needed
-Nplanned[Nplanned$SD==25 & Nplanned$Layer==2,"NHauls"] <- 
-  Nplanned[Nplanned$SD==25 & Nplanned$Layer==2,"NHauls"]+2
+Nplanned[Nplanned$SD==23 & Nplanned$Layer==9,"NHauls"] <- 
+  Nplanned[Nplanned$SD==23 & Nplanned$Layer==9,"NHauls"]+1
 
+Nplanned[Nplanned$SD==25 & Nplanned$Layer==10,"NHauls"] <- 
+  Nplanned[Nplanned$SD==25 & Nplanned$Layer==10,"NHauls"]+2
+
+Nplanned[Nplanned$SD==25 & Nplanned$Layer==11,"NHauls"] <- 
+  Nplanned[Nplanned$SD==25 & Nplanned$Layer==11,"NHauls"]+2
+
+Nplanned[Nplanned$SD==26 & Nplanned$Layer==10,"NHauls"] <- 
+  Nplanned[Nplanned$SD==26 & Nplanned$Layer==10,"NHauls"]+1
 
 #chaeck total hauls pr area is still strue
 kontrol <- Nplanned[ ,. (Nplanned = sum(NHauls)),

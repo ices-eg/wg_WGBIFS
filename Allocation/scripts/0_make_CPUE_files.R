@@ -6,7 +6,7 @@ library(icesDatras)
 wd <- "Allocation/"
 
 #Make plan for
-yr <- 2028
+yr <- 2027
 qtr <- 1
 
 #the get CPUE only works by year...
@@ -38,7 +38,7 @@ cpue_sd <- cpue_sd[ ,. (Cpue = mean(num_h)),
 
 ## by depth strata
 cpue$Layer <- cut(round(cpue$Depth),
-                  c(10, 40, seq(60, 120, by = 20))-0.1, c(2:6))
+                  c(seq(0, 120, by = 20), 200)-0.1, c(8:14))
 
 #sum by year
 cpue_l <- cpue[ ,. (num_h = sum(num_h)),

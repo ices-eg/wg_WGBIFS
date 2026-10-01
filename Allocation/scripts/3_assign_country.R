@@ -4,17 +4,22 @@ library(sf)
 library(openxlsx)
 library(plyr)
 library(mapview)
+library(leaflet)
+library(htmltools)
+library(htmlwidgets)
+
 
 wd <- "Allocation/"
 
-source(paste0(wd, "scripts/fun_degDec2DegMin.r"))
+source(paste0(wd, "scripts/fun_degDec2DegMin.R"))
+source(paste0(wd, "scripts/fun_leaflet.R"))
 
 #Make plan for
-yr <- 2026
+yr <- 2027
 qtr <- 1
 
-sample(100)[1] #should only be done/ changed once pr plan..
-set.seed(67)
+sample(100)[1] #should only be done/ changed once pr plan.. and number put below
+set.seed(63) # to make re-run possible without changing everything
 #-------------------------
 ices <- st_read(paste0(wd, "data/area/ICES_Areas_20160601_cut_dense_3857.shp"))|>
   st_transform(4326)
@@ -26,6 +31,10 @@ rects <- read.csv2(paste0(wd, "data/nation_rect_distr.csv"))
 PlannedStations<-read.table(paste0(wd, "data/PlannedStations.csv"),header=TRUE,sep=";")
 PlannedStations<-PlannedStations[PlannedStations$Quarter==qtr & 
                                    PlannedStations$Country != "Russia",]
+
+## check totals
+sum(PlannedStations$PlannedNumberOfHauls) == nrow(allocated)
+###
 
 PlannedStations$Country[PlannedStations$Country == "Germany"] <- "DE"
 PlannedStations$Country[PlannedStations$Country == "Sweden"] <- "SE"
@@ -45,9 +54,9 @@ PlannedStations <- PlannedStations[ ,. (plan_country = sum(PlannedNumberOfHauls)
 #miss 
 miss <- unique(allocated$RectangleAlpha[! allocated$RectangleAlpha %in% rects$RectangleAlpha])
 #manually assign missing rects to apropriate countries
-# rects <- rbind(rects, data.frame(Country = c("Havf", "PL", "PL", "PL"), 
-#                                  RectangleAlpha = c("38F9", "40G9", "41H0", "39H0"), 
-#                                  Pct = 100))
+rects <- rbind(rects, data.frame(Country = c("EE"), 
+                                 RectangleAlpha = c("45H0"), 
+                                 Pct = 100))
 
 #special for these rects in this quarter
 #rects[rects$RectangleAlpha == "40G5" & rects$Country == "Dana", "Pct"] <- 0
@@ -57,6 +66,13 @@ miss <- unique(allocated$RectangleAlpha[! allocated$RectangleAlpha %in% rects$Re
 td_100 <- merge(allocated, rects[rects$Pct == 100, ], 
                 by = "RectangleAlpha")
 
+# try to fit all 12 nm swedish stations to sweeden
+swe12 <- allocated[allocated$EEZ == "SWE" & allocated$NM12 == "Yes" &
+                    ! allocated$NrHaul %in% td_100$NrHaul,  ]
+swe12$Country <- "SE"
+
+#collect
+td_100 <- rbind.fill(td_100, swe12)
 
 #update plan  
 nr <- data.frame(table(td_100$Country))
@@ -94,7 +110,8 @@ remaining[ , 'weight_square' := weight/length(RectangleAlpha), by = .(Country)]
 fun <- function(i) {
   print(i)
   rect <- unique(remaining$RectangleAlpha)[i]
-  td <- allocated[allocated$RectangleAlpha == rect, ]
+  td <- allocated[allocated$RectangleAlpha == rect &
+                    ! allocated$NrHaul %in% swe12$NrHaul, ]
   
   all <- remaining[remaining$RectangleAlpha == rect, ]
   adj <- all$asign_adjust[1]
@@ -142,12 +159,14 @@ PlannedStations
 mapview(st_as_sf(assigned), zcol = "Country")
 
 ## manual corrections
+assigned$Country[is.na(assigned$Country)] <- "DE"
 
 #change the amounts pr country
-assigned[assigned$NrHaul %in% c(26153), "Country"] <- "LT"
-assigned[assigned$NrHaul %in% c(25359, 25277, 25450), "Country"] <- "DK"
-assigned[assigned$NrHaul %in% c(24059, 25011, 25049, 25051, 25052), "Country"] <- "DE"
-assigned[assigned$NrHaul %in% c(26064, 26067, 26073), "Country"] <- "PL"
+assigned[assigned$NrHaul %in% c(26060, 26294, 26064), "Country"] <- "LT"
+assigned[assigned$NrHaul %in% c(28058, 28091, 28030, 28112, 28191), "Country"] <- "LV"
+assigned[assigned$NrHaul %in% c(28195), "Country"] <- "SE"
+assigned[assigned$NrHaul %in% c(24251, 24360, 25442, 25075, 25524, 25240), "Country"] <- "DE"
+assigned[assigned$NrHaul %in% c(25545, 25463), "Country"] <- "PL"
 
 #check
 PlannedStations$Nrhauls <- NULL
@@ -159,13 +178,40 @@ PlannedStations$remain2 <- PlannedStations$plan_country - PlannedStations$Nrhaul
 PlannedStations
 mapview(st_as_sf(assigned), zcol = "Country")
 
-#switch so they are placed sensible
-assigned[assigned$NrHaul %in% c(25167, 25038, 25461, 25081, 25229, 25080), "Country"] <- "PL"
-assigned[assigned$NrHaul %in% c(25333, 25407, 25214, 25212, 25062, 25224), "Country"] <- "DK"
+funStationMap(data = assigned, yr = yr, qtr = qtr)
 
-assigned[assigned$NrHaul %in% c(24287, 24245, 24251), "Country"] <- "DE"
-assigned[assigned$NrHaul %in% c(25510, 25145, 25303), "Country"] <- "SE"
-assigned[assigned$NrHaul %in% c(24085, 24300, 24092), "Country"] <- "DK"
+
+#switch so they are placed sensible
+assigned[assigned$NrHaul %in% c(22018), "Country"] <- "DE"
+assigned[assigned$NrHaul %in% c(22111), "Country"] <- "Havf"
+
+assigned[assigned$NrHaul %in% c(25380), "Country"] <- "PL"
+assigned[assigned$NrHaul %in% c(26069), "Country"] <- "SE"
+
+## changes after meeting
+
+#
+assigned[assigned$NrHaul %in% c(22018, 22121), "Country"] <- "Havf"
+assigned <- assigned[! assigned$NrHaul %in% c(22089, 22091), ]
+
+td <- read.xlsx(paste0(wd, "data/Trawl_database_v25.xlsx"),
+                sheet = "td_all_stations")
+extr <- td[td$NrHaul %in% c(22136, 22127), ]
+extr$Country <- "DE"
+assigned <- rbind.fill(assigned, extr)
+
+#
+assigned[assigned$NrHaul %in% c(24278), "Country"] <- "Dana"
+assigned[assigned$NrHaul %in% c(25053), "Country"] <- "PL"
+
+assigned[assigned$NrHaul %in% c(24057, 24022), "Country"] <- "Dana"
+assigned[assigned$NrHaul %in% c(24047, 24080), "Country"] <- "DE"
+
+assigned[assigned$NrHaul %in% c(25409), "Country"] <- "SE"
+assigned[assigned$NrHaul %in% c(25303), "Country"] <- "Dana"
+
+###
+funStationMap(data = assigned, yr = yr, qtr = qtr)
 
 
 ## plot 
